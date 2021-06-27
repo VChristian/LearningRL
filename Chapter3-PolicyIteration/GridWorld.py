@@ -64,6 +64,9 @@ class GridWorld():
             action_taken_state = state
         return [action_taken_state]
 
+    def reward(self, state, action):
+        return -1
+
 
 
 

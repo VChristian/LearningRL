@@ -20,7 +20,7 @@ def policy_evaluation(env, grid_size, policy, tolerance = 1e-5):
 
                 inter_sum = 0
                 for snext in possible_next_states:
-                    inter_sum += env.dynamics(snext,-1,state,action)*(-1+gamma*valuek[snext[0],snext[1]])
+                    inter_sum += env.dynamics(snext,-1,state,action)*(env.reward(action, state)+gamma*valuek[snext[0],snext[1]])
                 update_increment += prob_s*inter_sum
         return update_increment
 
