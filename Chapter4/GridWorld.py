@@ -67,7 +67,12 @@ class GridWorld():
     def reward(self, state, action):
         return -1
 
-
+    def get_states(self):
+        grid_positions = []
+        for i in range(self.grid_size):
+            for j in range(self.grid_size):
+                grid_positions.append((i,j))
+        return grid_positions
 
 
 
