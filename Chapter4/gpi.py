@@ -51,25 +51,26 @@ def policy_evaluation(env, policy, gamma=1 ,tolerance = 1e-5):
     return value_function
 
 
-def policy_improvement(env, policy, value_function, gamma = 1):
+def policy_improvement(env, policy, value_function, gamma = 1, tolerance = 1e-9):
     policy_stable = True
+    all_policy_stable = []
     states = env.get_states()
     max_action_value = {s:[] for s in states}
     for s in states:
-        for action in policy.action_map.values():
-            possible_next_states = env.get_next_states(s,action)
-            reward = [1]
-            q_value = 0
-            for s_prime in possible_next_states:
-                for r in reward:
-                    state_transition_prob = env.dynamics(s_prime, r, s, action)
-                    discounted_reward_est = r+gamma*value_function[s]
-                    q_value += state_transition_prob*discounted_reward_est
-            max_action_value[s].append((action,q_value))
-    possible_updates = [key for key,val in max_action_value.items() if len(val)>0]
-    if len(possible_updates) > 0:
-        policy.update_action_probability(possible_updates[0], max_action_value[possible_updates[0]])
-        policy_stable = False
+        if s not in env.terminal_states:
+            for action_ind, action in policy.action_map.items():
+                possible_next_states = env.get_next_states(s,action_ind)
+                reward = [-1]
+                q_value = 0
+                for s_prime in possible_next_states:
+                    for r in reward:
+                        state_transition_prob = env.dynamics(s_prime, r, s, action)
+                        discounted_reward_est = r+gamma*value_function[s_prime]
+                        q_value += state_transition_prob*discounted_reward_est
+                max_action_value[s].append((action,q_value))
+            if abs(value_function[s] - max(max_action_value[s],key=lambda x:x[1])[1])>tolerance: # v(s) = max_a q(s,a)
+                policy_stable = False
+            policy.update_action_probability(s, max_action_value[s])
     return policy_stable
 
 
@@ -78,6 +79,7 @@ def policy_iteration(env, policy, value_function,gamma,tolerance):
     while not policy_stable:
         value_function = policy_evaluation(env,policy,gamma,tolerance)
         policy_stable = policy_improvement(env, policy, value_function, gamma)
+    value_function = policy_evaluation(env, policy, gamma, tolerance)
     return value_function, policy
 
 
@@ -88,5 +90,7 @@ def value_iteration():
 if __name__ == "__main__":
     env = GridWorld(4)
     policy = random_policy(4)
-    value_function = policy_evaluation(env,4,policy)
+    value_function = {key:0 for key in env.get_states()}
+    value_function, policy = policy_iteration(env,policy,value_function,1,1e-5)
     print(value_function)
+    print(policy.pi)

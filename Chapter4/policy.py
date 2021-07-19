@@ -44,11 +44,11 @@ class random_policy():
         """
         inverted_action_map = {val:key for key,val in self.action_map.items()}
         max_action = max(actions,key=lambda x:x[1])
-        all_actions_updates = [pair[0] for pair in actions if pair[1]==max_action]
+        all_actions_updates = [pair[0] for pair in actions if pair[1]==max_action[1]]
         prob_dist = self.pi[state]
-        for a in all_actions_updates:
-            action_index = inverted_action_map[a]
-            prob_dist[action_index] += 1
+        a = all_actions_updates[0]
+        action_index = inverted_action_map[a]
+        prob_dist[action_index] += 1
         normalization_const = sum(prob_dist)
         for i in range(len(prob_dist)):
             prob_dist[i] /= normalization_const
