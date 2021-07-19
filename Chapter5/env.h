@@ -10,7 +10,16 @@ namespace dun
 {
     class Dungeon
     {
-    public:
+      
+      private:
+        
+        // grid boundary variables
+        int left_boundary;
+        int right_boundary;
+
+        // action map
+
+      public:
 
         // state data structure for our dungeon 
         struct state
